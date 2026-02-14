@@ -240,6 +240,12 @@ def copy_style(ws, rows):
             cell.number_format = copy(ref.number_format)
             cell.alignment = copy(ref.alignment)
 
+def copy_formulas(ws, start_row, end_row):
+    for r in range(start_row + 1, end_row):
+        ws[f'B{r}'] = f'=TEXT(A{r},"dddd")'
+        ws[f'E{r}'] = f'=IF(D{r}="SIM",C{r}*2,C{r})'
+
+
 def fill_resource(ws, name, activities):
     info = INFOS[name]
 
@@ -256,10 +262,10 @@ def fill_resource(ws, name, activities):
 
     for a in activities:
         ws.cell(row, 1, a['date'])
-        ws.cell(row, 2, a['weekday'])
+        #ws.cell(row, 2, a['weekday']) # Iremos seguir a fórmula do Excel nessa coluna
         ws.cell(row, 3, a['hours'])
         ws.cell(row, 4, 'Sim' if a['overwork'] else 'Não')
-        ws.cell(row, 5, a['hours'] * 2 if a['overwork'] else a['hours'])
+        #ws.cell(row, 5, a['hours'] * 2 if a['overwork'] else a['hours']) # Iremos seguir a fórmula do Excel nessa coluna
         ws.cell(row, 6, a['activity'])
         last_date = parse_date(a['date'])
         row += 1
@@ -377,6 +383,7 @@ def create_files():
 
             profile, total_rows = fill_resource(ws, name, activities)
             copy_style(ws, total_rows)
+            copy_formulas(ws, 10, total_rows)
             fill_total_hours(wb[SHEETS['total']], name, profile)
 
 
