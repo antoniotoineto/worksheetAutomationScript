@@ -290,9 +290,20 @@ def fill_resource(ws, name, activities):
 def fill_header(ws, info):
     ws['B5'] = DATE_RANGE['Start Date']
     ws['C5'] = DATE_RANGE['End Date']
-    ws['B7'] = info['pm']
     ws['B10'] = info['cost_center']
     ws['B12'] = info['coordinator']
+
+def fill_header_pms(ws, pms):
+    cell = ws['B7']
+    
+    if not pms:
+        return
+    
+    if len(pms) == 1:
+        cell.value = pms[0]
+    else:
+        cell.value = " | ".join(pms)
+
 
 def fill_total_infos(ws, info):
     ws['K3'] = info['cost_center']
@@ -350,7 +361,10 @@ def create_files():
 
         base_ws = wb[SHEETS['base']]
 
+        pms = {INFOS[name].get('pm') for name in members if INFOS[name].get('pm')}
         fill_header(wb[SHEETS['header']], INFOS[members[0]])
+        fill_header_pms(wb[SHEETS['header']], list(pms))
+
         fill_total_infos(wb[SHEETS['total']], INFOS[members[0]])
         
         for name in members:
